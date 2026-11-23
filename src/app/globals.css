@@ -1,0 +1,502 @@
+@import "tailwindcss";
+
+/*
+ * Christmas scene, two appearances (HIG dark-mode.md): a snowy winter dusk (light)
+ * and a starry Christmas night (dark). Content sits on a translucent "thick material"
+ * card over the scene (HIG materials.md › standard materials for the content layer).
+ *
+ * Contrast, measured on the card blended over the worst background behind it:
+ *   light  label #10231C ≥ 13.5:1 · label2 #3F4D49 ≥ 6.5:1 · red #B3122B ≥ 5.7:1 · gold #8A5A00 ≥ 4.9:1
+ *   dark   label #F7F3EA ≥ 9.9:1  · label2 #B9C4BF ≥ 6.1:1 · red #FF8A8A ≥ 4.8:1 · gold #F2C45A ≥ 6.7:1
+ *   text on sky: light label2 5.8:1+, dark label2 8.5:1. White on button red #D21F3C 5.25:1.
+ *   gift tag: #10231C on #FBF3E4 14.9:1.
+ */
+:root {
+  color-scheme: light dark;
+  --sky-top: #c9dceb;
+  --sky-mid: #e4edf4;
+  --sky-bottom: #f6f9fb;
+  --stars-opacity: 0;
+  --pine-far: #c3d9d1;
+  --pine-near: #a3c6b8;
+  --snow-ground: #ffffff;
+  --snowflake: rgba(255, 255, 255, 0.95);
+  --snowflake-shadow: rgba(120, 150, 170, 0.35);
+
+  --card: rgba(255, 255, 255, 0.86);
+  --card-solid: #ffffff;
+  --card-pressed: rgba(16, 35, 28, 0.06);
+  --card-border: rgba(255, 255, 255, 0.9);
+  --card-shadow: 0 1px 2px rgba(16, 35, 28, 0.06), 0 8px 24px -8px rgba(30, 60, 80, 0.18);
+
+  --label: #10231c;
+  --label2: #3f4d49;
+  --label3: #6d7c77;
+  --separator: rgba(16, 35, 28, 0.14);
+  --fill: rgba(16, 35, 28, 0.06);
+  --accent: #d21f3c;
+  --accent-deep: #a50f26;
+  --accent-text: #b3122b;
+  --accent-soft: rgba(210, 31, 60, 0.1);
+  --on-accent: #ffffff;
+  --gold: #e9b949;
+  --gold-text: #7a4f00; /* 5.0:1 on sky top, 5.5:1+ on cards */
+  --pine: #1f5c46;
+  --success: #1f6e45;
+  --tag: #fbf3e4;
+  --tag-ink: #10231c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sky-top: #050d18;
+    --sky-mid: #0a1a24;
+    --sky-bottom: #0e2a22;
+    --stars-opacity: 1;
+    --pine-far: #0f2a22;
+    --pine-near: #0a1f19;
+    --snow-ground: #1f343c; /* moonlit snow: label2 stays ≥ 6:1 over it */
+    --snowflake: rgba(255, 255, 255, 0.85);
+    --snowflake-shadow: rgba(0, 0, 0, 0);
+
+    --card: rgba(19, 34, 30, 0.8);
+    --card-solid: #13221e;
+    --card-pressed: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+
+    --label: #f7f3ea;
+    --label2: #b9c4bf;
+    --label3: #8a9893;
+    --separator: rgba(247, 243, 234, 0.12);
+    --fill: rgba(247, 243, 234, 0.08);
+    --accent-text: #ff8a8a;
+    --accent-soft: rgba(255, 138, 138, 0.14);
+    --gold-text: #f2c45a;
+    --success: #6fd49b;
+  }
+}
+
+/* Increase Contrast / Reduce Transparency: make cards solid (HIG accessibility.md) */
+@media (prefers-contrast: more), (prefers-reduced-transparency: reduce) {
+  :root {
+    --card: var(--card-solid);
+  }
+}
+@media (prefers-contrast: more) {
+  :root {
+    --label2: #26302d;
+    --separator: rgba(16, 35, 28, 0.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --label2: #dde4e1;
+      --separator: rgba(247, 243, 234, 0.4);
+    }
+  }
+}
+
+@theme inline {
+  --color-card: var(--card);
+  --color-label: var(--label);
+  --color-label2: var(--label2);
+  --color-label3: var(--label3);
+  --color-separator: var(--separator);
+  --color-fill: var(--fill);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-gold: var(--gold);
+  --color-gold-text: var(--gold-text);
+  --color-success: var(--success);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--sky-bottom);
+  color: var(--label);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem; /* 17pt body */
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Type scale (iOS text styles; display face for titles only) ---------- */
+@utility t-large-title {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  line-height: 1.05;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+}
+@utility t-title2 {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  line-height: 1.15;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 100;
+}
+@utility t-headline {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+@utility t-subhead {
+  font-size: 0.9375rem;
+}
+@utility t-footnote {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+@layer components {
+  .section-header {
+    @apply t-subhead px-4 pb-1.5 font-semibold text-label2;
+  }
+  .section-footer {
+    @apply t-footnote px-4 pt-2 text-label2;
+  }
+
+  /* Inset grouped list on a thick material */
+  .list {
+    @apply overflow-hidden rounded-[1.125rem] bg-card;
+    border: 0.5px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+  }
+  .row {
+    @apply relative flex min-h-11 items-center gap-3 px-4 py-2.5;
+  }
+  .list > .row + .row::before,
+  .list > * + .row::before,
+  .list > .row + *::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 1rem;
+    right: 0;
+    border-top: 0.5px solid var(--separator);
+  }
+
+  .field {
+    @apply w-full bg-transparent text-label outline-none placeholder:text-label3;
+    font-size: 1.0625rem;
+  }
+  textarea.field {
+    @apply resize-none leading-snug;
+  }
+
+  .btn {
+    @apply inline-flex min-h-[3.25rem] w-full select-none items-center justify-center gap-2 rounded-full px-6 font-semibold transition-[transform,filter,opacity] duration-100;
+    font-size: 1.0625rem;
+  }
+  .btn:active {
+    transform: scale(0.98);
+    filter: brightness(0.92);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    transform: none;
+  }
+  .btn-primary {
+    color: var(--on-accent);
+    background: linear-gradient(180deg, var(--accent) 0%, var(--accent-deep) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 6px 18px -6px rgba(165, 15, 38, 0.6);
+  }
+  .btn-gray {
+    @apply bg-card text-accent-text;
+    border: 0.5px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+  }
+  .btn-plain {
+    @apply min-h-11 w-auto rounded-full px-3 text-accent-text;
+  }
+
+  .focus-ring:focus-visible,
+  .btn:focus-visible,
+  .chip:focus-within {
+    outline: 3px solid color-mix(in srgb, var(--gold) 80%, transparent);
+    outline-offset: 2px;
+  }
+
+  .chip {
+    @apply inline-flex min-h-11 cursor-pointer select-none items-center gap-1.5 rounded-full bg-card px-3.5 t-subhead text-label transition-[background-color,transform] duration-150;
+    border: 0.5px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+  }
+  .chip:active {
+    transform: scale(0.96);
+  }
+  .chip:has(input:checked) {
+    color: var(--on-accent);
+    background: linear-gradient(180deg, var(--accent) 0%, var(--accent-deep) 100%);
+    border-color: transparent;
+  }
+  .tag {
+    @apply inline-flex items-center gap-1 rounded-full bg-fill px-3 py-1.5 t-subhead;
+  }
+}
+
+/* ---------- The scene (decorative, behind everything) ---------- */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-bottom) 100%);
+}
+.scene-stars {
+  position: absolute;
+  inset: 0 0 40% 0;
+  opacity: var(--stars-opacity);
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 28% 8%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 44% 26%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 63% 12%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 78% 22%, #fff8dc 50%, transparent 51%),
+    radial-gradient(1px 1px at 90% 6%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 6% 40%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 54% 44%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 84% 38%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 35% 52%, #fff 50%, transparent 51%);
+  animation: twinkle 5s ease-in-out infinite alternate;
+}
+.scene-moon {
+  position: absolute;
+  top: 9.5rem;
+  right: 6%;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  opacity: var(--stars-opacity);
+  background: radial-gradient(circle at 35% 35%, #fffbe8, #f3e3b0 70%);
+  box-shadow: 0 0 40px 10px rgba(255, 240, 190, 0.18);
+}
+.scene-snow {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+  filter: drop-shadow(0 0 1px var(--snowflake-shadow));
+}
+.scene-snow.s1 {
+  background-image:
+    radial-gradient(3px 3px at 20px 30px, var(--snowflake) 50%, transparent 51%),
+    radial-gradient(2px 2px at 90px 120px, var(--snowflake) 50%, transparent 51%),
+    radial-gradient(3px 3px at 160px 60px, var(--snowflake) 50%, transparent 51%),
+    radial-gradient(2.5px 2.5px at 130px 170px, var(--snowflake) 50%, transparent 51%);
+  background-size: 200px 200px;
+  animation: snow1 18s linear infinite;
+}
+.scene-snow.s2 {
+  background-image:
+    radial-gradient(4px 4px at 50px 80px, var(--snowflake) 50%, transparent 51%),
+    radial-gradient(3.5px 3.5px at 230px 20px, var(--snowflake) 50%, transparent 51%),
+    radial-gradient(4px 4px at 170px 210px, var(--snowflake) 50%, transparent 51%);
+  background-size: 300px 300px;
+  animation: snow2 26s linear infinite;
+  opacity: 0.8;
+}
+.scene-snow.s3 {
+  background-image:
+    radial-gradient(1.5px 1.5px at 10px 10px, var(--snowflake) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 70px 90px, var(--snowflake) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 120px 40px, var(--snowflake) 50%, transparent 51%);
+  background-size: 140px 140px;
+  animation: snow3 34s linear infinite;
+  opacity: 0.7;
+}
+.scene-hills {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: min(30vh, 240px);
+}
+/* Shift by whole tiles so the loop is seamless */
+@keyframes snow1 {
+  to {
+    background-position: 200px 800px;
+  }
+}
+@keyframes snow2 {
+  to {
+    background-position: -300px 900px;
+  }
+}
+@keyframes snow3 {
+  to {
+    background-position: 140px 560px;
+  }
+}
+@keyframes twinkle {
+  from {
+    opacity: calc(var(--stars-opacity) * 0.6);
+  }
+}
+
+/* ---------- Garland of lights ---------- */
+.garland .bulb {
+  animation: glow 2.4s ease-in-out infinite alternate;
+}
+.garland .bulb:nth-child(3n) {
+  animation-delay: -0.8s;
+}
+.garland .bulb:nth-child(3n + 1) {
+  animation-delay: -1.6s;
+}
+@keyframes glow {
+  from {
+    opacity: 0.55;
+  }
+}
+
+/* ---------- Signature moment: the wrapped gift ---------- */
+.gift {
+  position: relative;
+  isolation: isolate;
+  padding-top: 2.75rem; /* room for the bow */
+}
+.gift-box {
+  position: relative;
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.18), transparent 40%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0) 0 14px,
+      rgba(255, 255, 255, 0.06) 14px 28px
+    ),
+    linear-gradient(180deg, var(--accent) 0%, var(--accent-deep) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 18px 40px -16px rgba(120, 10, 30, 0.6);
+  color: var(--on-accent);
+  overflow: hidden;
+}
+.gift-ribbon-v,
+.gift-ribbon-h {
+  position: absolute;
+  background: linear-gradient(90deg, #d9a23a, #f6d27a 50%, #d9a23a);
+  transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 350ms ease;
+}
+.gift-ribbon-v {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1.5rem;
+  transform: translateX(-50%);
+}
+.gift-ribbon-h {
+  left: 0;
+  right: 0;
+  top: 3.25rem;
+  height: 1.25rem;
+  background: linear-gradient(180deg, #d9a23a, #f6d27a 50%, #d9a23a);
+}
+.gift-lid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3.25rem;
+  background: rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 350ms ease;
+}
+.gift-bow {
+  position: absolute;
+  top: 0.35rem;
+  left: 50%;
+  width: 6.5rem;
+  transform: translateX(-50%);
+  z-index: 2;
+  filter: drop-shadow(0 4px 6px rgba(80, 40, 0, 0.35));
+  transition: transform 550ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 350ms ease;
+}
+.gift[data-open="true"] .gift-bow {
+  transform: translate(-50%, -2.5rem) rotate(-14deg);
+  opacity: 0;
+}
+.gift[data-open="true"] .gift-lid {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+.gift[data-open="true"] .gift-ribbon-v {
+  transform: translateX(-50%) scaleY(0);
+  opacity: 0;
+}
+.gift[data-open="true"] .gift-ribbon-h {
+  transform: scaleX(0);
+  opacity: 0;
+}
+.gift-tag {
+  position: relative;
+  z-index: 1;
+  background: var(--tag);
+  color: var(--tag-ink);
+  border-radius: 0.875rem;
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.45);
+}
+.gift-tag::before {
+  /* punched hole */
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  left: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-deep);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+.gift:not([data-open="true"]) .gift-tag-wiggle:hover {
+  animation: wiggle 600ms ease-in-out;
+}
+.reveal-in {
+  animation: reveal 550ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+}
+@keyframes wiggle {
+  25% {
+    transform: rotate(-2deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .scene-snow {
+    animation: none !important;
+  }
+}
